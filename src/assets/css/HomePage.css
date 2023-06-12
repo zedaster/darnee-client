@@ -14,3 +14,7 @@
     flex-direction: column;
     gap: 5px;
 }
+
+.button-container button {
+    width: 100%;
+}

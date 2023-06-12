@@ -1,6 +1,7 @@
 import {Component} from "react";
 import "../../assets/css/ChatPage.css"
 import MessageGroup from "../../components/message/MessageGroup";
+import PageFlexBase from "../../components/flex-base/PageFlexBase";
 
 class ChatPage extends Component {
     constructor(props) {
@@ -19,25 +20,28 @@ class ChatPage extends Component {
 
     render() {
         return (
-            <div className="chat-page mb-5">
-                <div className="messages-container" id="messages-container">
-                    <MessageGroup sentByUser messages={this.state.userMessages}/>
-                </div>
-                <form className="input-container" onSubmit={this.sendMessage}>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Type something..."
-                            value={this.state.input}
-                            onChange={this.handleInputChange}
-                        />
-                        <button type="submit" className="btn btn-primary" onClick={this.sendMessage}>
-                            Send
-                        </button>
+            <PageFlexBase showBackButton>
+                <div className="chat-page mb-5">
+                    <div className="messages-container" id="messages-container">
+                        <MessageGroup sentByUser messages={this.state.userMessages}/>
                     </div>
-                </form>
-            </div>
+                    <form className="input-container" onSubmit={this.sendMessage}>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Type something..."
+                                value={this.state.input}
+                                onChange={this.handleInputChange}
+                            />
+                            <button type="submit" className="btn btn-primary px-3" onClick={this.sendMessage}>
+                                Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </PageFlexBase>
+
         );
     }
 
@@ -65,7 +69,7 @@ class ChatPage extends Component {
         if (this.state.scrollMessagesDown) {
             // Scroll down to the new message
             const container = document.getElementById("messages-container");
-            container.scroll({ top: container.scrollHeight, behavior: "smooth" });
+            container.scroll({top: container.scrollHeight, behavior: "smooth"});
             this.setState({scrollMessagesDown: false})
         }
     }
