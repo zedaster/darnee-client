@@ -11,6 +11,7 @@ class ChatPage extends Component {
                 {id: '2', text: 'Second msg'}
             ],
             input: '',
+            scrollMessagesDown: false,
         };
         this.sendMessage = this.sendMessage.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -19,7 +20,7 @@ class ChatPage extends Component {
     render() {
         return (
             <div className="chat-page mb-5">
-                <div className="messages-container">
+                <div className="messages-container" id="messages-container">
                     <MessageGroup sentByUser messages={this.state.userMessages}/>
                 </div>
                 <form className="input-container" onSubmit={this.sendMessage}>
@@ -41,8 +42,9 @@ class ChatPage extends Component {
     }
 
     sendMessage(event) {
-        event.preventDefault();
+        // Avoid sending if the message text is empty
         if (!this.state.input.trim()) return;
+        // Set state
         this.setState(prev => {
             return {
                 userMessages: [
@@ -53,9 +55,19 @@ class ChatPage extends Component {
                     }
                 ],
                 input: '',
+                scrollMessagesDown: true,
             }
         });
+        event.preventDefault();
+    }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.scrollMessagesDown) {
+            // Scroll down to the new message
+            const container = document.getElementById("messages-container");
+            container.scroll({ top: container.scrollHeight, behavior: "smooth" });
+            this.setState({scrollMessagesDown: false})
+        }
     }
 
     handleInputChange(event) {
