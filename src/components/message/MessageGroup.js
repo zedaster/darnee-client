@@ -1,5 +1,6 @@
 import {Component} from "react";
 import "../../assets/css/MessageGroup.css"
+import Message from "./Message";
 
 class MessageGroup extends Component {
     constructor(props) {
@@ -9,18 +10,16 @@ class MessageGroup extends Component {
             this.messageLineClass += ' user-message-line'
         }
         this.sender = (props.sentByUser ? "You" : props.sentBy) ?? "unknown";
-        if (this.props.children instanceof Array) {
-            this.childrenArray = this.props.children;
-        } else {
-            this.childrenArray = new Array(this.props.children);
-        }
     }
 
     render() {
+        const messages = this.props.messages.map(msg => (
+            <div key={msg.id} className={this.messageLineClass}><Message>{msg.text}</Message></div>)
+        );
         return (
             <div className="message-group">
                 <div className="message-group-content">
-                    {this.childrenArray.map((child) => (<div className={this.messageLineClass}>{child}</div>))}
+                    {messages}
                 </div>
                 <span className="sender text-muted ms-1">{this.sender}</span>
             </div>
