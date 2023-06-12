@@ -1,0 +1,6 @@
+.message-group-content {
+    display: flex;
+    margin-right: 5px;
+    flex-direction: column;
+    gap: 5px;
+}

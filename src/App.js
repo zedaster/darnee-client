@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from "./components/Header";
 import HomePage from "./pages/home/HomePage";
 import './assets/css/App.css'
+import ChatPage from "./pages/chat/ChatPage";
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
               <Header />
           </div>
           <div className="container app-content">
-              <HomePage />
+              <ChatPage />
           </div>
       </div>
   );
