@@ -8,6 +8,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+    max-width: 900px;
     height: 100%;
 }
 
@@ -15,6 +16,6 @@
     justify-content: space-between;
 }
 
-.nothing-for-right {
+.nothing-for-edge {
     width: 1.25rem;
 }

@@ -20,7 +20,7 @@ class ChatPage extends Component {
 
     render() {
         return (
-            <PageFlexBase showBackButton>
+            <PageFlexBase showBackButton linkButtonResource="https://google.com/">
                 <div className="chat-page mb-5">
                     <div className="messages-container" id="messages-container">
                         <MessageGroup sentByUser messages={this.state.userMessages}/>
@@ -41,7 +41,6 @@ class ChatPage extends Component {
                     </form>
                 </div>
             </PageFlexBase>
-
         );
     }
 

@@ -7,7 +7,7 @@ class PageFlexBase extends Component {
         return (
             <div className="flex-base">
                 <div className="header-wrapper">
-                    <Header showBackButton={this.props.showBackButton} />
+                    <Header showBackButton={this.props.showBackButton} linkButtonResource={this.props.linkButtonResource} />
                 </div>
                 <div className="container app-content">
                     {this.props.children}
