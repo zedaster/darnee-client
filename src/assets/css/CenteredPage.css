@@ -1,0 +1,12 @@
+.centered-page {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.centered-page-content {
+    max-width: 400px;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}

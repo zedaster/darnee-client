@@ -4,6 +4,7 @@ import HomePage from "./pages/home/HomePage";
 import ChatPage from "./pages/chat/ChatPage";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NotFoundPage from "./pages/not-found/NotFoundPage";
+import CreateChatPage from "./pages/create-chat/CreateChatPage";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <BrowserRouter>
               <Routes>
                   <Route index path="/" element={<HomePage />} />
+                  <Route index path="create-chat" element={<CreateChatPage />} />
                   <Route path="chat" element={<ChatPage />} />
                   <Route path="*" element={<NotFoundPage />} />
               </Routes>

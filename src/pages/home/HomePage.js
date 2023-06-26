@@ -1,5 +1,6 @@
 import {Component} from "react";
 import '../../assets/css/HomePage.css';
+import '../../assets/css/CenteredPage.css';
 import {Link} from "react-router-dom";
 import PageFlexBase from "../../components/flex-base/PageFlexBase";
 
@@ -7,12 +8,14 @@ class HomePage extends Component {
     render() {
         return (
             <PageFlexBase>
-                <div className="home-page">
-                    <div className="home-content my-5">
-                        <p className="lead text-center">Activate your Darnee chat room swiftly and join its members by
-                            link</p>
+                <div className="centered-page">
+                    <div className="centered-page-content">
+                        <h3 className="text-center">Activate your Darnee chat room swiftly and join its members by
+                            link</h3>
                         <div className="button-container my-4">
-                            <button type="button" className="btn btn-success">Create a new chat room</button>
+                            <Link to="create-chat">
+                                <button type="button" className="btn btn-success">Create a new chat room</button>
+                            </Link>
                             <Link to="chat">
                                 <button type="button" className="btn btn-primary">Open your rooms</button>
                             </Link>

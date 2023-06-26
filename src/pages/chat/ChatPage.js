@@ -21,6 +21,7 @@ class ChatPage extends Component {
     render() {
         return (
             <PageFlexBase showBackButton linkButtonResource="https://google.com/">
+                {/* TODO: Change the link button resource */}
                 <div className="chat-page mb-5">
                     <div className="messages-container" id="messages-container">
                         <MessageGroup sentByUser messages={this.state.userMessages}/>
