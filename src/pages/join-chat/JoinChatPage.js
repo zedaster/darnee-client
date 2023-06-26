@@ -1,18 +1,17 @@
 import {Component} from "react";
 import PageFlexBase from "../../components/flex-base/PageFlexBase";
 
-export default class CreateChatPage extends Component {
+export default class JoinChatPage extends Component {
     constructor(props) {
         super(props);
     }
 
     render() {
         return (
-            <PageFlexBase showBackButton>
+            <PageFlexBase>
                 <div className="centered-page">
                     <div className="centered-page-content">
-                        <h3 className="mb-4 text-center">A bit more to start</h3>
-                        {/* TODO: Create form */}
+                        <h3 className="mb-4 text-center">You are almost in the chat</h3>
                         <form>
                             <div className="mb-3">
                                 <label htmlFor="nameInput" className="form-label">Your name</label>

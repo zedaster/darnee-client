@@ -9,7 +9,7 @@ class NotFoundPage extends Component {
             <PageFlexBase>
                 <div className="centered-page">
                     <div className="centered-page-content">
-                        <p className="lead text-center">Page not found</p>
+                        <h3 className="text-center">Page not found</h3>
                         <div className="button-container my-4">
                             <Link to="/">
                                 <button type="button" className="btn btn-primary">Back to main page</button>

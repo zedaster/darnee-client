@@ -16,8 +16,8 @@ class HomePage extends Component {
                             <Link to="create-chat">
                                 <button type="button" className="btn btn-success">Create a new chat room</button>
                             </Link>
-                            <Link to="chat">
-                                <button type="button" className="btn btn-primary">Open your rooms</button>
+                            <Link to="restore-chats">
+                                <button type="button" className="btn btn-primary">Restore your chats</button>
                             </Link>
 
                         </div>
