@@ -14,7 +14,7 @@ class MessageGroup extends Component {
 
     render() {
         const messages = this.props.messages.map(msg => (
-            <div key={msg.id} className={this.messageLineClass}><Message>{msg.text}</Message></div>)
+            <div className={this.messageLineClass}><Message>{msg.text}</Message></div>)
         );
         return (
             <div className="message-group">
