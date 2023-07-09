@@ -1,12 +1,14 @@
 import {Component} from "react";
 import PageFlexBase from "../../components/flex-base/PageFlexBase";
 import {createEnum} from "../../utils/enum";
-import {isValidEmail, isValidName} from "../../services/validator";
+import {isValidEmail, isValidName} from "../../utils/validator";
+import {withRouterNavigate} from "../../utils/router";
+import AuthService from "../../services/AuthService";
 
 const NameState = createEnum(['EMPTY', 'TYPING_EMPTY', 'TYPING_VALID', 'VALID', 'INVALID']);
 const EmailState = createEnum(['EMPTY', 'TYPING_EMPTY', 'TYPING_INVALID', 'TYPING_VALID', 'VALID', 'INVALID']);
 
-export default class CreateChatPage extends Component {
+class CreateChatPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -14,6 +16,7 @@ export default class CreateChatPage extends Component {
             email: '',
             nameState: NameState.EMPTY,
             emailState: EmailState.EMPTY,
+            isSubmitting: false,
         }
 
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -22,6 +25,7 @@ export default class CreateChatPage extends Component {
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleEmailFocused = this.handleEmailFocused.bind(this);
         this.handleEmailBlurred = this.handleEmailBlurred.bind(this);
+        this.handleFormSubmit = this.handleFormSubmit.bind(this);
     }
 
     render() {
@@ -30,7 +34,7 @@ export default class CreateChatPage extends Component {
                 <div className="centered-page">
                     <div className="centered-page-content centered-page-full-width">
                         <h3 className="mb-4 text-center">A bit more to start</h3>
-                        <form>
+                        <form onSubmit={this.handleFormSubmit}>
                             <div className="mb-3">
                                 <label htmlFor="nameInput" className="form-label">Your name</label>
                                 <input type="text"
@@ -52,6 +56,7 @@ export default class CreateChatPage extends Component {
                                        value={this.state.email}
                                        className={"form-control " + this.emailStateClass}
                                        aria-describedby="emailHelp"
+                                       onKeyDown={this.handleEmailKeyDown}
                                        onChange={this.handleEmailChange}
                                        onFocus={this.handleEmailFocused}
                                        onBlur={this.handleEmailBlurred}
@@ -64,8 +69,10 @@ export default class CreateChatPage extends Component {
                                     The email must be valid or empty.
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary w-100"
-                                    disabled={this.isButtonDisabled}>Let's go!
+                            <button type="submit"
+                                    className="btn btn-primary w-100"
+                                    disabled={this.isButtonDisabled}>
+                                Let's go!
                             </button>
                         </form>
                     </div>
@@ -95,8 +102,8 @@ export default class CreateChatPage extends Component {
     get isButtonDisabled() {
         const enabledNameStates = [NameState.VALID, NameState.TYPING_VALID];
         const enabledEmailStates = [EmailState.VALID, EmailState.TYPING_VALID, EmailState.EMPTY, EmailState.TYPING_EMPTY];
-        // TODO: Correct this
-        return !enabledNameStates.includes(this.state.nameState) ||
+        return this.state.isSubmitting ||
+            !enabledNameStates.includes(this.state.nameState) ||
             !enabledEmailStates.includes(this.state.emailState);
     }
 
@@ -156,7 +163,7 @@ export default class CreateChatPage extends Component {
     }
 
     handleEmailChange(event) {
-        const newEmail = event.target.value.trim();
+        const newEmail = event.target.value;
         let newEmailState;
         if (newEmail.length === 0) {
             newEmailState = EmailState.TYPING_EMPTY;
@@ -167,4 +174,21 @@ export default class CreateChatPage extends Component {
         }
         this.setState({email: newEmail, emailState: newEmailState});
     }
+
+    handleEmailKeyDown(event) {
+        // prevent if event.key is whitespace character
+        if (event.key.match(/\s/)) {
+            event.preventDefault();
+        }
+    }
+
+    handleFormSubmit(event) {
+        event.preventDefault();
+        this.setState({isSubmitting: true});
+        AuthService.createChat(this.state.name, this.state.email).then((chatId) => {
+            this.props.navigate(`/chat/${chatId}`);
+        });
+    }
 }
+
+export default withRouterNavigate(CreateChatPage);

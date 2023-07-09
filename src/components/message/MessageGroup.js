@@ -9,7 +9,10 @@ class MessageGroup extends Component {
         if (props.sentByUser) {
             this.messageLineClass += ' user-message-line'
         }
-        this.sender = (props.sentByUser ? "You" : props.sentBy) ?? "unknown";
+        console.log('[MessageGroup] Sent by current user ' + JSON.stringify(this.props.sentByUser))
+        console.log('[MessageGroup] Sender id ' + JSON.stringify(this.props.sender))
+        console.log('[MessageGroup] messages' + JSON.stringify(this.props.messages))
+        this.sender = (props.sentByUser ? "You" : props.sender) ?? "unknown";
     }
 
     render() {

@@ -4,6 +4,7 @@ import "../../assets/css/PageFlexBase.css"
 
 class PageFlexBase extends Component {
     render() {
+        // TODO: Add loading line to the bottom of the page
         return (
             <div className="flex-base">
                 <div className="header-wrapper">

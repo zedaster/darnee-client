@@ -2,8 +2,9 @@ import {Component} from "react";
 import "../../assets/css/ChatPage.css"
 import MessageGroup from "../../components/message/MessageGroup";
 import PageFlexBase from "../../components/flex-base/PageFlexBase";
-import {io} from "socket.io-client";
 import {Link} from "react-router-dom";
+import {withRouterParams} from "../../utils/router";
+import ChatSocketService from "../../services/ChatSocketService";
 
 class ChatPage extends Component {
     constructor(props) {
@@ -11,12 +12,14 @@ class ChatPage extends Component {
         this.state = {
             // {sentByUser: true, messages: [{id: '1', text: 'First example message'}, {id: '2', text: 'Second msg'}]
             messageGroups: [],
+            chatUsers: {},
             input: '',
             scrollMessagesDown: false,
             loaded: false,
             connectionError: null,
         };
 
+        this.onSocketConnected = this.onSocketConnected.bind(this);
         this.getNewMessageGroups = this.getNewMessageGroups.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.receiveMessage = this.receiveMessage.bind(this);
@@ -25,31 +28,40 @@ class ChatPage extends Component {
 
     componentDidMount() {
         console.log('Mounting ChatPage');
-        // TODO: Get chat_id form GET params
         if (this.state.connectionError === null && !this.state.loaded) {
-            const searchParams = new URLSearchParams(window.location.search);
-            const chat_id = searchParams.get('id');
-            if (typeof chat_id !== 'string' || chat_id.length !== 40) {
+            const chatId = this.props.params.id;
+            if (typeof chatId !== 'string') {
                 this.setState({connectionError: 'invalid_chat_id'});
+                return;
             }
 
-            this.socket = io.connect(process.env.REACT_APP_CHAT_SOCKET_URL, {query: {chat_id: chat_id}});
-            this.socket.on('connection_error', (error) => {
+            const onSocketError = (error) => {
                 console.log('Connection error: ' + error);
                 this.setState({connectionError: error.message});
-            })
-            this.socket.on('connection_success', (messages) => {
-                this.setState({loaded: true})
-            });
-            this.socket.on('receive_message', this.receiveMessage);
+            }
+
+            this.socketService = new ChatSocketService(chatId,
+                this.onSocketConnected,
+                onSocketError,
+                this.receiveMessage);
         }
     }
 
+    onSocketConnected(response) {
+        console.log('Socket connected');
+        console.log('Response: ' + JSON.stringify(response))
+        console.log('Socket messages: ' + JSON.stringify(response.messages));
+        console.log('Chat users: ' + JSON.stringify(response.messages));
+        const userId = this.socketService.userId;
+        console.log('User id: ' + userId);
+        const messageGroups = this.getNewMessageGroups(response.messages)
+        this.setState({loaded: true, messageGroups: messageGroups});
+    }
+
     componentWillUnmount() {
-        console.log('Unmounting ChatPage');
         // Disconnect from the socket if it's connected
-        if (this.socket) {
-            this.socket.disconnect();
+        if (this.socketService) {
+            this.socketService.disconnect()
         }
     }
 
@@ -57,7 +69,7 @@ class ChatPage extends Component {
         let messageGroups;
         if (this.state.connectionError === null) {
             messageGroups = this.state.messageGroups.map(group => (
-                <MessageGroup sentByUser={group.sentByUser} messages={group.messages}/>
+                <MessageGroup sentByUser={group.sender === this.socketService.userId} sender={group.sender} messages={group.messages}/>
             ));
         } else {
             messageGroups =
@@ -96,26 +108,35 @@ class ChatPage extends Component {
         );
     }
 
-    getNewMessageGroups(sentByUser, message) {
+    getNewMessageGroups(newMessages) {
+        if (typeof newMessages !== "object") {
+            throw Error('newMessages must be an object')
+        }
+        if (!Array.isArray(newMessages)) {
+            newMessages = [newMessages]
+        }
         const newMessageGroups = JSON.parse(JSON.stringify(this.state.messageGroups));
-        if (this.state.messageGroups.length === 0 ||
-            this.state.messageGroups[this.state.messageGroups.length - 1].sentByUser !== sentByUser) {
-            newMessageGroups.push({
-                sentByUser: sentByUser,
-                messages: [message]
-            });
-        } else {
-            newMessageGroups[this.state.messageGroups.length - 1].messages.push(message);
+        for (const message of newMessages) {
+            if (newMessageGroups.length === 0 ||
+                newMessageGroups[newMessageGroups.length - 1].sender !== message.sender) {
+                newMessageGroups.push({
+                    sender: message.sender,
+                    messages: [message]
+                });
+            } else {
+                newMessageGroups[newMessageGroups.length - 1].messages.push(message);
+            }
         }
         return newMessageGroups;
     }
 
     sendMessage(event) {
+        event.preventDefault();
         // TODO: Handle sending message error
         // Avoid sending if the message text is empty
         if (!this.state.input.trim()) return;
         // Create new array of message groups
-        const newMessageGroups = this.getNewMessageGroups(true, {text: this.state.input})
+        const newMessageGroups = this.getNewMessageGroups({text: this.state.input, sender: this.socketService.userId})
         // Update the state
         this.setState(prev => {
             return {
@@ -124,15 +145,13 @@ class ChatPage extends Component {
                 scrollMessagesDown: true,
             }
         });
-        event.preventDefault();
-        this.socket.emit('send_message', {"text": this.state.input})
+        this.socketService.sendMessage({"text": this.state.input});
     }
 
     receiveMessage(message) {
-        console.log("Received message: " + message.text)
         this.setState(prev => {
             return {
-                messageGroups: this.getNewMessageGroups(false, message),
+                messageGroups: this.getNewMessageGroups(message),
                 scrollMessagesDown: true,
             }
         });
@@ -156,8 +175,11 @@ class ChatPage extends Component {
             case 'invalid_chat_id':
                 return <p>The chat doesn't exists. Ask for another link or go to <Link to="/">main page</Link> to
                     restore your chat rooms or create new one.</p>;
+            case 'no_token':
+                return <p>Please ask for invite link or go to <Link to="/">main
+                    page</Link> to restore your chat rooms or create new one.</p>;
         }
     }
 }
 
-export default ChatPage;
+export default withRouterParams(ChatPage);
