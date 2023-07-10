@@ -4,8 +4,8 @@ import {createEnum} from "../../utils/enum";
 import {isValidEmail, isValidName} from "../../utils/validator";
 import {withRouterNavigate} from "../../utils/router";
 import AuthService from "../../services/AuthService";
+import {NameInput, NameState} from "../../components/form/NameInput";
 
-const NameState = createEnum(['EMPTY', 'TYPING_EMPTY', 'TYPING_VALID', 'VALID', 'INVALID']);
 const EmailState = createEnum(['EMPTY', 'TYPING_EMPTY', 'TYPING_INVALID', 'TYPING_VALID', 'VALID', 'INVALID']);
 
 class CreateChatPage extends Component {
@@ -20,8 +20,6 @@ class CreateChatPage extends Component {
         }
 
         this.handleNameChange = this.handleNameChange.bind(this);
-        this.handleNameFocused = this.handleNameFocused.bind(this);
-        this.handleNameBlurred = this.handleNameBlurred.bind(this);
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleEmailFocused = this.handleEmailFocused.bind(this);
         this.handleEmailBlurred = this.handleEmailBlurred.bind(this);
@@ -35,20 +33,7 @@ class CreateChatPage extends Component {
                     <div className="centered-page-content centered-page-full-width">
                         <h3 className="mb-4 text-center">A bit more to start</h3>
                         <form onSubmit={this.handleFormSubmit}>
-                            <div className="mb-3">
-                                <label htmlFor="nameInput" className="form-label">Your name</label>
-                                <input type="text"
-                                       id="nameInput"
-                                       value={this.state.name}
-                                       className={"form-control " + this.nameStateClass}
-                                       onChange={this.handleNameChange}
-                                       onFocus={this.handleNameFocused}
-                                       onBlur={this.handleNameBlurred}
-                                />
-                                <div className="invalid-feedback">
-                                    The name must contain between 1 and 32 characters of a-z, A-Z, 0-9 and space.
-                                </div>
-                            </div>
+                            <NameInput className="mb-3" onInputChange={this.handleNameChange}/>
                             <div className="mb-3">
                                 <label htmlFor="emailInput" className="form-label">Email</label>
                                 <input type="email"
@@ -81,15 +66,6 @@ class CreateChatPage extends Component {
         )
     }
 
-    get nameStateClass() {
-        if (this.state.nameState === NameState.VALID) {
-            return 'is-valid';
-        } else if (this.state.nameState === NameState.INVALID) {
-            return 'is-invalid';
-        }
-        return '';
-    }
-
     get emailStateClass() {
         if (this.state.emailState === EmailState.VALID) {
             return 'is-valid';
@@ -107,39 +83,8 @@ class CreateChatPage extends Component {
             !enabledEmailStates.includes(this.state.emailState);
     }
 
-    handleNameFocused() {
-        if (this.state.nameState === NameState.INVALID) return;
-        if (this.state.name.length === 0) {
-            this.setState({nameState: NameState.TYPING_EMPTY});
-        } else {
-            this.setState({nameState: NameState.TYPING_VALID});
-        }
-    }
-
-    handleNameBlurred() {
-        const newName = this.state.name.trimEnd();
-        if (this.state.nameState === NameState.TYPING_VALID) {
-            this.setState({name: newName, nameState: NameState.VALID})
-        } else if (this.state.nameState === NameState.TYPING_EMPTY) {
-            this.setState({name: newName, nameState: NameState.EMPTY})
-        }
-    }
-
-    handleNameChange(event) {
-        const newName = event.target.value.trimStart().replace(/\s\s+/g, ' ');
-        const checkName = newName.trimEnd();
-        if (checkName.length === 0) {
-            this.setState({name: newName, nameState: NameState.TYPING_EMPTY});
-            return;
-        }
-
-        // set isNameValid to false if the name doesn't contain between 1 and 32 characters of a-z, A-Z, 0-9 and space)
-        if (!isValidName(checkName)) {
-            this.setState({name: newName, nameState: NameState.INVALID});
-            return;
-        }
-
-        this.setState({name: newName, nameState: NameState.TYPING_VALID});
+    handleNameChange(newName, newNameState) {
+        this.setState({name: newName, nameState: newNameState});
     }
 
     handleEmailFocused() {
