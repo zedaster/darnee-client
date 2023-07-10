@@ -16,10 +16,12 @@ class ChatPage extends Component {
             input: '',
             scrollMessagesDown: false,
             loaded: false,
+            inviteHash: null,
             connectionError: null,
         };
 
         this.onSocketConnected = this.onSocketConnected.bind(this);
+        this.getLinkButtonResource = this.getLinkButtonResource.bind(this);
         this.getNewMessageGroups = this.getNewMessageGroups.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.receiveMessage = this.receiveMessage.bind(this);
@@ -54,8 +56,9 @@ class ChatPage extends Component {
         console.log('Chat users: ' + JSON.stringify(response.messages));
         const userId = this.socketService.userId;
         console.log('User id: ' + userId);
-        const messageGroups = this.getNewMessageGroups(response.messages)
-        this.setState({loaded: true, messageGroups: messageGroups});
+        const inviteHash = response.inviteHash;
+        const messageGroups = this.getNewMessageGroups(response.messages);
+        this.setState({loaded: true, inviteHash: inviteHash, messageGroups: messageGroups});
     }
 
     componentWillUnmount() {
@@ -79,7 +82,7 @@ class ChatPage extends Component {
         }
 
         return (
-            <PageFlexBase showBackButton linkButtonResource="https://google.com/">
+            <PageFlexBase showBackButton linkButtonResource={this.getLinkButtonResource()}>
                 {/* TODO: Change the link button resource */}
                 <div className="chat-page mb-5">
                     <div className="messages-container" id="messages-container">
@@ -106,6 +109,12 @@ class ChatPage extends Component {
                 </div>
             </PageFlexBase>
         );
+    }
+
+    getLinkButtonResource() {
+        if (this.state.inviteHash === null) return null;
+        const origin = window.location.origin;
+        return origin + '/join/' + this.state.inviteHash;
     }
 
     getNewMessageGroups(newMessages) {

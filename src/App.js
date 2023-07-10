@@ -15,7 +15,7 @@ function App() {
                 <Routes>
                     <Route index path="/" element={<HomePage/>}/>
                     <Route index path="create-chat" element={<CreateChatPage/>}/>
-                    <Route index path="join-chat" element={<JoinChatPage/>}/>
+                    <Route index path="join/:id" element={<JoinChatPage/>}/>
                     <Route index path="restore-chats" element={<RestoreChatsPage/>}/>
                     <Route path="chat/:id" element={<ChatPage/>}/>
                     <Route path="*" element={<NotFoundPage/>}/>

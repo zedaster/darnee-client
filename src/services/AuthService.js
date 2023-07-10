@@ -8,8 +8,6 @@ class AuthService {
     static #updateTokenPath = AuthService.#getPath('updateToken');
 
     async createChat(name, email) {
-        const localStorageKey = 'chatTokens';
-
         const data = {username: name}
         if (email) {
             data.email = email;
@@ -18,6 +16,27 @@ class AuthService {
         const request = await axios.post(AuthService.#createRoomPath, data)
         const message = request.data.message;
         if (message !== "Room created") {
+            throw new Error(message);
+        }
+        const token = request.data.data.token;
+        const refreshToken = request.data.data.refreshToken;
+        const decodedToken = AuthService.#parseJwt(token);
+        const chatId = decodedToken.chat;
+        const userId = decodedToken.user;
+
+        TokenStorageService.setChatData(chatId, userId, token, refreshToken);
+        return chatId;
+    }
+
+    async joinChat(name, email, inviteHash) {
+        const data = {username: name, inviteHash: inviteHash}
+        if (email) {
+            data.email = email;
+        }
+
+        const request = await axios.post(AuthService.#joinRoomPath, data)
+        const message = request.data.message;
+        if (message !== "User joined") {
             throw new Error(message);
         }
         const token = request.data.data.token;

@@ -29,7 +29,8 @@ export default class ChatSocketService {
             path: process.env.REACT_APP_CHAT_SOCKET_PATH,
             transports: ['websocket']
         });
-        this.#socket.on('connect_error', async (error) => {            if (error.message === "Invalid token" && attemp === 1) {
+        this.#socket.on('connect_error', async (error) => {
+            if (error.message === "Invalid token" && attemp === 1) {
                 try {
                     await AuthService.updateToken(chatData.refreshToken);
                 } catch (error) {
