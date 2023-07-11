@@ -18,7 +18,6 @@ class Header extends Component {
         if (this.props.showBackButton) {
             const backButton = <Link to="/"><ArrowLeft size="1.25rem" /></Link>
             if (this.props.linkButtonResource) {
-                // TODO: Extract the link button to other component
                 const linkButton = <CopyLinkButton link={this.props.linkButtonResource} />
                 navBarContent = [backButton, ...navBarContent, linkButton]
             } else {

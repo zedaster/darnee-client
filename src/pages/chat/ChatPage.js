@@ -21,6 +21,7 @@ class ChatPage extends Component {
         };
 
         this.onSocketConnected = this.onSocketConnected.bind(this);
+        this.onUserJoined = this.onUserJoined.bind(this);
         this.getLinkButtonResource = this.getLinkButtonResource.bind(this);
         this.getNewMessageGroups = this.getNewMessageGroups.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
@@ -29,7 +30,6 @@ class ChatPage extends Component {
     }
 
     componentDidMount() {
-        console.log('Mounting ChatPage');
         if (this.state.connectionError === null && !this.state.loaded) {
             const chatId = this.props.params.id;
             if (typeof chatId !== 'string') {
@@ -45,20 +45,26 @@ class ChatPage extends Component {
             this.socketService = new ChatSocketService(chatId,
                 this.onSocketConnected,
                 onSocketError,
-                this.receiveMessage);
+                this.receiveMessage,
+                this.onUserJoined);
         }
     }
 
     onSocketConnected(response) {
         console.log('Socket connected');
-        console.log('Response: ' + JSON.stringify(response))
-        console.log('Socket messages: ' + JSON.stringify(response.messages));
-        console.log('Chat users: ' + JSON.stringify(response.messages));
-        const userId = this.socketService.userId;
-        console.log('User id: ' + userId);
+        const users = Object.fromEntries(response.users.map(row => [row._id, row.name]))
         const inviteHash = response.inviteHash;
         const messageGroups = this.getNewMessageGroups(response.messages);
-        this.setState({loaded: true, inviteHash: inviteHash, messageGroups: messageGroups});
+        this.setState({loaded: true, chatUsers: users, inviteHash: inviteHash, messageGroups: messageGroups});
+    }
+
+    onUserJoined(response) {
+        const id = response._id
+        const name = response.name
+        console.log(`New user ${JSON.stringify(response)} joined to the chat`)
+        const newUsers = {...this.state.chatUsers}
+        newUsers[id] = name
+        this.setState({chatUsers: newUsers})
     }
 
     componentWillUnmount() {
@@ -72,7 +78,10 @@ class ChatPage extends Component {
         let messageGroups;
         if (this.state.connectionError === null) {
             messageGroups = this.state.messageGroups.map(group => (
-                <MessageGroup sentByUser={group.sender === this.socketService.userId} sender={group.sender} messages={group.messages}/>
+                <MessageGroup sentByUser={group.sender === this.socketService.userId}
+                              sender={this.state.chatUsers[group.sender]}
+                              messages={group.messages}
+                />
             ));
         } else {
             messageGroups =
@@ -81,9 +90,9 @@ class ChatPage extends Component {
                 </div>;
         }
 
+        // TODO: Add loading line to PageFlexBase and use it when the messages are loading
         return (
             <PageFlexBase showBackButton linkButtonResource={this.getLinkButtonResource()}>
-                {/* TODO: Change the link button resource */}
                 <div className="chat-page mb-5">
                     <div className="messages-container" id="messages-container">
                         {messageGroups}

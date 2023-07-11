@@ -7,7 +7,6 @@ class Message extends Component {
     }
 
     render() {
-        // TODO: Rename className to message
         return (
                 <div className="message">
                     <div className="message-text">

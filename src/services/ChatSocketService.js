@@ -6,14 +6,16 @@ export default class ChatSocketService {
     #onConnectSuccess;
     #onConnectError;
     #onReceiveMessage;
+    #onUserJoined;
     #socket;
 
-    constructor(chatId, onConnectSuccess, onConnectError, onReceiveMessage) {
+    constructor(chatId, onConnectSuccess, onConnectError, onReceiveMessage, onUserJoined) {
         this.chatId = chatId;
         this.userId = null;
         this.#onConnectSuccess = onConnectSuccess;
         this.#onConnectError = onConnectError;
         this.#onReceiveMessage = onReceiveMessage;
+        this.#onUserJoined = onUserJoined;
         this.#connect()
     }
 
@@ -50,6 +52,7 @@ export default class ChatSocketService {
             this.#onConnectSuccess(...args)
         });
         this.#socket.on('receive_message', this.#onReceiveMessage);
+        this.#socket.on('user_joined', this.#onUserJoined);
     }
 
     sendMessage(message) {
