@@ -16,9 +16,9 @@ class HomePage extends Component {
                             <Link to="create-chat">
                                 <button type="button" className="btn btn-success">Create a new chat room</button>
                             </Link>
-                            <Link to="restore-chats">
-                                <button type="button" className="btn btn-primary">Restore your chats</button>
-                            </Link>
+                            {/*<Link to="restore-chats">*/}
+                            {/*    <button type="button" className="btn btn-primary">Restore your chats</button>*/}
+                            {/*</Link>*/}
 
                         </div>
                         <p className="text-muted text-center mt-3 mb-0">If a room has been inactive for 30 days, it removes

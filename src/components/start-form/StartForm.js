@@ -22,7 +22,7 @@ export class StartForm extends Component {
         return (
             <form onSubmit={this.handleFormSubmit}>
                 <NameInput className="mb-3" onInputChange={this.handleNameChange} />
-                <EmailInput className="mb-3" onInputChange={this.handleEmailChange} />
+                {/*<EmailInput className="mb-3" onInputChange={this.handleEmailChange} />*/}
                 <button type="submit"
                         className="btn btn-primary w-100"
                         disabled={this.isButtonDisabled}>
