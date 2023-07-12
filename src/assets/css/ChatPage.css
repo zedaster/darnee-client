@@ -42,4 +42,5 @@
     margin-top: 0.25rem;
     display: flex;
     flex: 0 1 auto;
+    flex-direction: column;
 }

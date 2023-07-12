@@ -6,7 +6,6 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NotFoundPage from "./pages/not-found/NotFoundPage";
 import CreateChatPage from "./pages/create-chat/CreateChatPage";
 import JoinChatPage from "./pages/join-chat/JoinChatPage";
-import RestoreChatsPage from "./pages/restore-chats/RestoreChatsPage";
 
 function App() {
     return (

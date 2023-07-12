@@ -50,6 +50,6 @@ export class StartForm extends Component {
 
     handleFormSubmit(event) {
         event.preventDefault();
-        this.props.onFormSubmit({name: this.state.name, email: this.state.email});
+        this.props.onFormSubmit({name: this.state.name.trimEnd(), email: this.state.email});
     }
 }

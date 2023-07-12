@@ -5,7 +5,9 @@ import PageFlexBase from "../../components/flex-base/PageFlexBase";
 import {Link} from "react-router-dom";
 import {withRouterParams} from "../../utils/router";
 import ChatSocketService from "../../services/ChatSocketService";
+import {createEnum} from "../../utils/enum";
 
+const InputState = createEnum(['EMPTY', 'VALID', 'CHAR_LIMIT_EXCEEDED'])
 class ChatPage extends Component {
     constructor(props) {
         super(props);
@@ -14,6 +16,7 @@ class ChatPage extends Component {
             messageGroups: [],
             chatUsers: {},
             input: '',
+            inputState: InputState.EMPTY,
             scrollMessagesDown: false,
             loaded: false,
             inviteHash: null,
@@ -22,6 +25,8 @@ class ChatPage extends Component {
 
         this.onSocketConnected = this.onSocketConnected.bind(this);
         this.onUserJoined = this.onUserJoined.bind(this);
+        this.getInvalidFeedbackDisplayClass = this.getInvalidFeedbackDisplayClass.bind(this);
+        this.getInputClasses = this.getInputClasses.bind(this);
         this.getLinkButtonResource = this.getLinkButtonResource.bind(this);
         this.getNewMessageGroups = this.getNewMessageGroups.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
@@ -83,6 +88,13 @@ class ChatPage extends Component {
                               messages={group.messages}
                 />
             ));
+            if (messageGroups.length === 0) {
+                messageGroups = (<div className="centered-page">
+                    <div className="centered-page-content">
+                        <p className="text-muted">All messages will be shown here</p>
+                    </div>
+                </div>)
+            }
         } else {
             messageGroups =
                 <div className="alert alert-danger">
@@ -91,33 +103,65 @@ class ChatPage extends Component {
         }
 
         // TODO: Add loading line to PageFlexBase and use it when the messages are loading
-        return (
-            <PageFlexBase showBackButton linkButtonResource={this.getLinkButtonResource()}>
-                <div className="chat-page mb-5">
-                    <div className="messages-container" id="messages-container">
-                        {messageGroups}
-                    </div>
-                    <form className="input-container" onSubmit={this.sendMessage}>
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Type something..."
-                                value={this.state.input}
-                                onChange={this.handleInputChange}
-                                disabled={!this.state.loaded}/>
-                            <button
-                                type="submit"
-                                className="btn btn-primary px-3"
-                                onClick={this.sendMessage}
-                                disabled={!this.state.loaded}>
-                                Send
-                            </button>
+        if (!this.state.loaded) {
+            return (
+                <PageFlexBase showBackButton>
+                    <div className="centered-page">
+                        <div className="centered-page-content">
+                            <div className="spinner-grow text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            </PageFlexBase>
-        );
+                    </div>
+                </PageFlexBase>
+            )
+        } else {
+            return (
+                <PageFlexBase showBackButton linkButtonResource={this.getLinkButtonResource()}>
+                    <div className="chat-page mb-5">
+                        <div className="messages-container" id="messages-container">
+                            {messageGroups}
+                        </div>
+                        <form className="input-container" onSubmit={this.sendMessage}>
+                            <div className={"invalid-feedback mb-1 " + this.getInvalidFeedbackDisplayClass()}>
+                                4096 characters is maximum message length
+                            </div>
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    id="message-input"
+                                    className={"form-control " + this.getInputClasses()}
+                                    placeholder="Type something..."
+                                    value={this.state.input}
+                                    onChange={this.handleInputChange}
+                                    disabled={!this.state.loaded}/>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary px-3"
+                                    onClick={this.sendMessage}
+                                    disabled={this.state.inputState !== InputState.VALID}>
+                                    Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </PageFlexBase>
+            );
+        }
+    }
+
+    getInvalidFeedbackDisplayClass() {
+        if (this.state.inputState === InputState.CHAR_LIMIT_EXCEEDED) {
+            return "d-flex";
+        }
+        return "d-none";
+    }
+
+    getInputClasses() {
+        if (this.state.inputState === InputState.CHAR_LIMIT_EXCEEDED) {
+            return "is-invalid";
+        }
+        return "";
     }
 
     getLinkButtonResource() {
@@ -185,7 +229,17 @@ class ChatPage extends Component {
     }
 
     handleInputChange(event) {
-        this.setState({input: event.target.value}); // Update the messageText state with the input value
+        const text = event.target.value;
+        const cleanText = text.trim();
+        if (!cleanText) {
+            this.setState({inputState: InputState.EMPTY, input: text});
+            return;
+        }
+        if (cleanText.length > 4096) {
+            this.setState({inputState: InputState.CHAR_LIMIT_EXCEEDED, input: text});
+            return;
+        }
+        this.setState({inputState: InputState.VALID, input: text});
     }
 
     connectionErrorToHtml(error) {
@@ -196,6 +250,8 @@ class ChatPage extends Component {
             case 'no_token':
                 return <p>Please ask for invite link or go to <Link to="/">main
                     page</Link> to restore your chat rooms or create new one.</p>;
+            default:
+                return <p>Unknown error happened. Try to refresh the page.</p>
         }
     }
 }
