@@ -38,13 +38,13 @@ class ChatPage extends Component {
         if (this.state.connectionError === null && !this.state.loaded) {
             const chatId = this.props.params.id;
             if (typeof chatId !== 'string') {
-                this.setState({connectionError: 'invalid_chat_id'});
+                this.setState({loaded: true, connectionError: 'invalid_chat_id'});
                 return;
             }
 
             const onSocketError = (error) => {
                 console.log('Connection error: ' + error);
-                this.setState({connectionError: error.message});
+                this.setState({loaded: true, connectionError: error.message});
             }
 
             this.socketService = new ChatSocketService(chatId,
@@ -102,7 +102,6 @@ class ChatPage extends Component {
                 </div>;
         }
 
-        // TODO: Add loading line to PageFlexBase and use it when the messages are loading
         if (!this.state.loaded) {
             return (
                 <PageFlexBase showBackButton>
@@ -134,7 +133,7 @@ class ChatPage extends Component {
                                     placeholder="Type something..."
                                     value={this.state.input}
                                     onChange={this.handleInputChange}
-                                    disabled={!this.state.loaded}/>
+                                    disabled={!this.state.loaded || this.state.connectionError}/>
                                 <button
                                     type="submit"
                                     className="btn btn-primary px-3"
