@@ -9,15 +9,25 @@ class JoinChatPage extends Component {
         super(props);
         this.state = {
             loaded: false,
-            error: null,
             isSubmitting: false,
         }
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
     }
 
+    componentDidMount() {
+        const inviteHash = this.props.params.id;
+        AuthService.isUserAuthorized(inviteHash).then(response => {
+            if (response.isAuthorized) {
+                this.props.navigate(`/chat/${response.chatId}`);
+            } else {
+                this.setState({loaded: this})
+            }
+        })
+    }
+
     render() {
         return (
-            <PageFlexBase>
+            <PageFlexBase isLoading={!this.state.loaded}>
                 <div className="centered-page">
                     <div className="centered-page-content">
                         <h3 className="mb-4 text-center">You are almost in the chat</h3>

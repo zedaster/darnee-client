@@ -2,10 +2,11 @@ import axios from "axios";
 import TokenStorageService from "./StorageService";
 
 class AuthService {
-    static #createRoomPath = AuthService.#getPath('createRoom');
-    static #joinRoomPath = AuthService.#getPath('joinRoom');
-    static #restoreRoomsPath = AuthService.#getPath('restoreRooms');
-    static #updateTokenPath = AuthService.#getPath('updateToken');
+    static #createRoomPath = AuthService.#getPath('createRoom')
+    static #inviteChatInfoPath = AuthService.#getPath('inviteChatInfo')
+    static #joinRoomPath = AuthService.#getPath('joinRoom')
+    static #restoreRoomsPath = AuthService.#getPath('restoreRooms')
+    static #updateTokenPath = AuthService.#getPath('updateToken')
 
     async createChat(name, email) {
         const data = {username: name}
@@ -26,6 +27,16 @@ class AuthService {
 
         TokenStorageService.setChatData(chatId, userId, token, refreshToken);
         return chatId;
+    }
+
+    async isUserAuthorized(inviteHash){
+        const data = {inviteHash: inviteHash}
+        const request = await axios.get(AuthService.#inviteChatInfoPath, {params: data})
+        const chatId = request.data.data.chatId
+        return {
+            isAuthorized: TokenStorageService.getChatData(chatId) !== null,
+            chatId: chatId
+        }
     }
 
     async joinChat(name, email, inviteHash) {

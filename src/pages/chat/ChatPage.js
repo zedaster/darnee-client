@@ -8,6 +8,7 @@ import ChatSocketService from "../../services/ChatSocketService";
 import {createEnum} from "../../utils/enum";
 
 const InputState = createEnum(['EMPTY', 'VALID', 'CHAR_LIMIT_EXCEEDED'])
+
 class ChatPage extends Component {
     constructor(props) {
         super(props);
@@ -102,51 +103,38 @@ class ChatPage extends Component {
                 </div>;
         }
 
-        if (!this.state.loaded) {
-            return (
-                <PageFlexBase showBackButton>
-                    <div className="centered-page">
-                        <div className="centered-page-content">
-                            <div className="spinner-grow text-primary" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+
+        return (
+            <PageFlexBase showBackButton isLoading={!this.state.loaded} linkButtonResource={this.getLinkButtonResource()}>
+                <div className="chat-page mb-5">
+                    <div className="messages-container" id="messages-container">
+                        {messageGroups}
                     </div>
-                </PageFlexBase>
-            )
-        } else {
-            return (
-                <PageFlexBase showBackButton linkButtonResource={this.getLinkButtonResource()}>
-                    <div className="chat-page mb-5">
-                        <div className="messages-container" id="messages-container">
-                            {messageGroups}
+                    <form className="input-container" onSubmit={this.sendMessage}>
+                        <div className={"invalid-feedback mb-1 " + this.getInvalidFeedbackDisplayClass()}>
+                            4096 characters is maximum message length
                         </div>
-                        <form className="input-container" onSubmit={this.sendMessage}>
-                            <div className={"invalid-feedback mb-1 " + this.getInvalidFeedbackDisplayClass()}>
-                                4096 characters is maximum message length
-                            </div>
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    id="message-input"
-                                    className={"form-control " + this.getInputClasses()}
-                                    placeholder="Type something..."
-                                    value={this.state.input}
-                                    onChange={this.handleInputChange}
-                                    disabled={!this.state.loaded || this.state.connectionError}/>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary px-3"
-                                    onClick={this.sendMessage}
-                                    disabled={this.state.inputState !== InputState.VALID}>
-                                    Send
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </PageFlexBase>
-            );
-        }
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                id="message-input"
+                                className={"form-control " + this.getInputClasses()}
+                                placeholder="Type something..."
+                                value={this.state.input}
+                                onChange={this.handleInputChange}
+                                disabled={!this.state.loaded || this.state.connectionError}/>
+                            <button
+                                type="submit"
+                                className="btn btn-primary px-3"
+                                onClick={this.sendMessage}
+                                disabled={this.state.inputState !== InputState.VALID}>
+                                Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </PageFlexBase>
+        );
     }
 
     getInvalidFeedbackDisplayClass() {
